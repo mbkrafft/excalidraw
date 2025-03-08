@@ -299,6 +299,7 @@ import {
   maybeParseEmbedSrc,
   getEmbedLink,
 } from "../element/embeddable";
+import { convertToShape } from "@excalidraw/utils/snapToShape";
 import type { ContextMenuItems } from "./ContextMenu";
 import { ContextMenu, CONTEXT_MENU_SEPARATOR } from "./ContextMenu";
 import LayerUI from "./LayerUI";
@@ -8988,6 +8989,22 @@ class App extends React.Component<AppProps, AppState> {
           pressures,
           lastCommittedPoint: pointFrom<LocalPoint>(dx, dy),
         });
+
+        if (this.state.isShapeSnapEnabled) {
+          const detectedElement = convertToShape(newElement);
+          if (detectedElement !== newElement) {
+            this.scene.replaceAllElements([
+              ...this.scene
+                .getElementsIncludingDeleted()
+                .filter((el) => el.id !== newElement.id),
+              detectedElement,
+            ]);
+
+            this.setState({
+              selectedElementIds: { [detectedElement.id]: true },
+            });
+          }
+        }
 
         this.actionManager.executeAction(actionFinalize);
 
