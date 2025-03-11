@@ -13,7 +13,7 @@ Please add the latest change on the top under the correct section.
 
 ## Excalidraw Library
 
-## 18.0.0 (2025-02-28)
+## 0.18.0 (2025-03-11)
 
 ### Highlights
 
@@ -64,13 +64,19 @@ We've transitioned from `UMD` to `ESM` bundle format. Our new `dist` bundles ins
 │   └── types/
 ```
 
-##### JavaScript: required `"type": "module"` in package.json
-
-Make sure that your JavaScript environment supports ES modules, as it might be required to define `"type": "module"` in your `package.json` file or as part of the `<script type="module" />` attribute.
+Make sure that your JavaScript environment supports ES modules. You _may_ need to define `"type": "module"` in your `package.json` file or as part of the `<script type="module" />` attribute.
 
 ##### Typescript: deprecated "moduleResolution": `"node"` or `"node10"`
 
 Since `"node"` and `"node10"` do not support `package.json` `"exports"` fields, having these values in your `tsconfig.json` will not work. Instead, use `"bundler"`, `"node16"` or `"nodenext"` values. For more information, see [Typescript's documentation](https://www.typescriptlang.org/tsconfig/#moduleResolution).
+
+##### ESM strict resolution
+
+Due to ESM strict resolution, if you're using Webpack or other bundler that expects import paths to be fully specified, you'll need to explicitly disable this feature.
+
+For example in Webpack, you should set [`resolve.fullySpecified`](https://webpack.js.org/configuration/resolve/#resolvefullyspecified) to `false`.
+
+For this reason, CRA will no longer work unless you eject or use a workaround such as [craco](https://stackoverflow.com/a/75109686).
 
 ##### New structure of the imports
 
@@ -358,6 +364,8 @@ The `updateScene` API has changed due to the added `Store` component, as part of
 - Improve collab error notification [#7741](https://github.com/excalidraw/excalidraw/pull/7741)
 
 - Grouped together Undo and Redo buttons on mobile [#9109](https://github.com/excalidraw/excalidraw/pull/9109)
+
+- Remove GA code from binding [#9042](https://github.com/excalidraw/excalidraw/pull/9042)
 
 - Load old library if migration fails
 
@@ -668,6 +676,24 @@ The `updateScene` API has changed due to the added `Store` component, as part of
 - Remove t from getDefaultAppState and allow name to be nullable [#7666](https://github.com/excalidraw/excalidraw/pull/7666)
 
 - Stop using structuredClone [#9128](https://github.com/excalidraw/excalidraw/pull/9128)
+
+- Fix elbow arrow fixed binding on restore [#9197](https://github.com/excalidraw/excalidraw/pull/9197)
+
+- Cleanup legacy `element.rawText` (obsidian) [#9203](https://github.com/excalidraw/excalidraw/pull/9203)
+
+- React 18 element.ref was accessed error [#9208](https://github.com/excalidraw/excalidraw/pull/9208)
+
+- Docked sidebar width [#9213](https://github.com/excalidraw/excalidraw/pull/9213)
+
+- Arrow updated on both sides [#8593](https://github.com/excalidraw/excalidraw/pull/8593)
+
+- Package env vars [#9221](https://github.com/excalidraw/excalidraw/pull/9221)
+
+- Bound elbow arrow on duplication does not route correctly [#9236](https://github.com/excalidraw/excalidraw/pull/9236)
+
+- Do not rebind undragged elbow arrow endpoint [#9191](https://github.com/excalidraw/excalidraw/pull/9191)
+
+- Logging and fixing extremely large scenes [#9225](https://github.com/excalidraw/excalidraw/pull/9225)
 
 ### Refactor
 
