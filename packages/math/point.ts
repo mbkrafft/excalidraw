@@ -241,20 +241,20 @@ export const isPointWithinBounds = <P extends GlobalPoint | LocalPoint>(
  * @param end - The ending point of the line segment.
  * @returns The perpendicular distance from point p to the line segment defined by start and end.
  */
-export const perpendicularDistance = <P extends GlobalPoint | LocalPoint> (
+export const perpendicularDistance = <P extends GlobalPoint | LocalPoint>(
   p: P,
   start: P,
   end: P):
   number => {
-    const dx = end[0] - start[0];
-    const dy = end[1] - start[1];
-    if (dx === 0 && dy === 0) {
-      return Math.hypot(p[0] - start[0], p[1] - start[1]);
-    }
-    // Equation of line distance
-    const numerator = Math.abs(dy * p[0] - dx * p[1] + end[0] * start[1] - end[1] * start[0]);
-    const denom = Math.hypot(dx, dy);
-    return numerator / denom;
+  const dx = end[0] - start[0];
+  const dy = end[1] - start[1];
+  if (dx === 0 && dy === 0) {
+    return Math.hypot(p[0] - start[0], p[1] - start[1]);
+  }
+  // Equation of line distance
+  const numerator = Math.abs(dy * p[0] - dx * p[1] + end[0] * start[1] - end[1] * start[0]);
+  const denom = Math.hypot(dx, dy);
+  return numerator / denom;
 }
 
 /** * Calculates the angle between three points in degrees.
