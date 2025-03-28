@@ -1,3 +1,29 @@
+import fs from "fs";
+import path from "path";
+import util from "util";
+
+import { pointFrom, type LocalPoint, type Radians } from "@excalidraw/math";
+
+import { DEFAULT_VERTICAL_ALIGN, ROUNDNESS, assertNever } from "@excalidraw/common";
+
+import { mutateElement } from "@excalidraw/element/mutateElement";
+import {
+  newArrowElement,
+  newElement,
+  newEmbeddableElement,
+  newFrameElement,
+  newFreeDrawElement,
+  newIframeElement,
+  newImageElement,
+  newLinearElement,
+  newMagicFrameElement,
+  newTextElement,
+} from "@excalidraw/element/newElement";
+
+import { isLinearElementType } from "@excalidraw/element/typeChecks";
+import { getSelectedElements } from "@excalidraw/element/selection";
+import { selectGroupsForSelectedElements } from "@excalidraw/element/groups";
+
 import type {
   ExcalidrawElement,
   ExcalidrawGenericElement,
@@ -12,35 +38,19 @@ import type {
   ExcalidrawElbowArrowElement,
   ExcalidrawArrowElement,
   FixedSegment,
-} from "../../element/types";
-import { newElement, newTextElement, newLinearElement } from "../../element";
-import { DEFAULT_VERTICAL_ALIGN, ROUNDNESS } from "../../constants";
+} from "@excalidraw/element/types";
+
+import type { Mutable } from "@excalidraw/common/utility-types";
+
+import { getMimeType } from "../../data/blob";
+import { createTestHook } from "../../components/App";
 import { getDefaultAppState } from "../../appState";
 import { GlobalTestState, createEvent, fireEvent, act } from "../test-utils";
-import fs from "fs";
-import util from "util";
-import path from "path";
-import { getMimeType } from "../../data/blob";
-import {
-  newArrowElement,
-  newEmbeddableElement,
-  newFrameElement,
-  newFreeDrawElement,
-  newIframeElement,
-  newImageElement,
-  newMagicFrameElement,
-} from "../../element/newElement";
-import type { AppState } from "../../types";
-import { getSelectedElements } from "../../scene/selection";
-import { isLinearElementType } from "../../element/typeChecks";
-import type { Mutable } from "../../utility-types";
-import { assertNever } from "../../utils";
-import type App from "../../components/App";
-import { createTestHook } from "../../components/App";
+
 import type { Action } from "../../actions/types";
-import { mutateElement } from "../../element/mutateElement";
-import { pointFrom, type LocalPoint, type Radians } from "@excalidraw/math";
-import { selectGroupsForSelectedElements } from "../../groups";
+import type App from "../../components/App";
+import type { AppState } from "../../types";
+
 
 const readFile = util.promisify(fs.readFile);
 // so that window.h is available when App.tsx is not imported as well.

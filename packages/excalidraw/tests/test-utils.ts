@@ -1,6 +1,4 @@
 import "pepjs";
-
-import type { RenderResult, RenderOptions } from "@testing-library/react";
 import { act } from "@testing-library/react";
 import {
   render,
@@ -9,17 +7,24 @@ import {
   fireEvent,
   cleanup,
 } from "@testing-library/react";
-
-import * as toolQueries from "./queries/toolQueries";
-import type { ImportedDataState } from "../data/types";
-import { STORAGE_KEYS } from "../../../excalidraw-app/app_constants";
-import { getSelectedElements } from "../scene/selection";
-import type { ExcalidrawElement } from "../element/types";
-import { UI } from "./helpers/ui";
 import ansi from "ansicolor";
-import { ORIG_ID } from "../constants";
-import { arrayToMap } from "../utils";
-import type { AllPossibleKeys } from "../utility-types";
+
+import { ORIG_ID, arrayToMap } from "@excalidraw/common";
+
+import { getSelectedElements } from "@excalidraw/element/selection";
+
+import type { ExcalidrawElement } from "@excalidraw/element/types";
+
+import type { AllPossibleKeys } from "@excalidraw/common/utility-types";
+
+import { STORAGE_KEYS } from "../../../excalidraw-app/app_constants";
+
+import { UI } from "./helpers/ui";
+import * as toolQueries from "./queries/toolQueries";
+
+import type { RenderResult, RenderOptions } from "@testing-library/react";
+
+import type { ImportedDataState } from "../data/types";
 
 export { cleanup as unmountComponent };
 

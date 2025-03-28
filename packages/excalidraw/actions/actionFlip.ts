@@ -1,32 +1,39 @@
-import { register } from "./register";
-import { getSelectedElements } from "../scene";
-import { getNonDeletedElements } from "../element";
+import { getNonDeletedElements } from "@excalidraw/element";
+import {
+  bindOrUnbindLinearElements,
+  isBindingEnabled,
+} from "@excalidraw/element/binding";
+import { getCommonBoundingBox } from "@excalidraw/element/bounds";
+import {
+  mutateElement,
+  newElementWith,
+} from "@excalidraw/element/mutateElement";
+import { deepCopyElement } from "@excalidraw/element/duplicate";
+import { resizeMultipleElements } from "@excalidraw/element/resizeElements";
+import {
+  isArrowElement,
+  isElbowArrow,
+  isLinearElement,
+} from "@excalidraw/element/typeChecks";
+import { updateFrameMembershipOfSelectedElements } from "@excalidraw/element/frame";
+import { CODES, KEYS, arrayToMap } from "@excalidraw/common";
+
 import type {
   ExcalidrawArrowElement,
   ExcalidrawElbowArrowElement,
   ExcalidrawElement,
   NonDeleted,
   NonDeletedSceneElementsMap,
-} from "../element/types";
-import { resizeMultipleElements } from "../element/resizeElements";
-import type { AppClassProperties, AppState } from "../types";
-import { arrayToMap } from "../utils";
-import { CODES, KEYS } from "../keys";
-import {
-  bindOrUnbindLinearElements,
-  isBindingEnabled,
-} from "../element/binding";
-import { updateFrameMembershipOfSelectedElements } from "../frame";
-import { flipHorizontal, flipVertical } from "../components/icons";
+} from "@excalidraw/element/types";
+
+import { getSelectedElements } from "../scene";
 import { CaptureUpdateAction } from "../store";
-import {
-  isArrowElement,
-  isElbowArrow,
-  isLinearElement,
-} from "../element/typeChecks";
-import { mutateElement, newElementWith } from "../element/mutateElement";
-import { deepCopyElement } from "../element/newElement";
-import { getCommonBoundingBox } from "../element/bounds";
+
+import { flipHorizontal, flipVertical } from "../components/icons";
+
+import { register } from "./register";
+
+import type { AppClassProperties, AppState } from "../types";
 
 export const actionFlipHorizontal = register({
   name: "flipHorizontal",

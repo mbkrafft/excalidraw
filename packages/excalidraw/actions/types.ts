@@ -1,8 +1,9 @@
-import type React from "react";
 import type {
   ExcalidrawElement,
   OrderedExcalidrawElement,
-} from "../element/types";
+} from "@excalidraw/element/types";
+
+import type { CaptureUpdateActionType } from "../store";
 import type {
   AppClassProperties,
   AppState,
@@ -10,7 +11,7 @@ import type {
   BinaryFiles,
   UIAppState,
 } from "../types";
-import type { CaptureUpdateActionType } from "../store";
+import type React from "react";
 
 export type ActionSource =
   | "ui"

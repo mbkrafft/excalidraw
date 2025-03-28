@@ -1,17 +1,18 @@
-import type { Action, ActionResult } from "./types";
-import { UndoIcon, RedoIcon } from "../components/icons";
+import { isWindows, KEYS, matchKey, arrayToMap } from "@excalidraw/common";
+
+import type { SceneElementsMap } from "@excalidraw/element/types";
+
 import { ToolButton } from "../components/ToolButton";
-import { t } from "../i18n";
-import type { History } from "../history";
+import { UndoIcon, RedoIcon } from "../components/icons";
 import { HistoryChangedEvent } from "../history";
-import type { AppClassProperties, AppState } from "../types";
-import { KEYS, matchKey } from "../keys";
-import { arrayToMap } from "../utils";
-import { isWindows } from "../constants";
-import type { SceneElementsMap } from "../element/types";
-import type { Store } from "../store";
-import { CaptureUpdateAction } from "../store";
 import { useEmitter } from "../hooks/useEmitter";
+import { t } from "../i18n";
+import { CaptureUpdateAction } from "../store";
+
+import type { History } from "../history";
+import type { Store } from "../store";
+import type { AppClassProperties, AppState } from "../types";
+import type { Action, ActionResult } from "./types";
 
 const executeHistoryAction = (
   app: AppClassProperties,

@@ -1,11 +1,16 @@
+import { KEYS, arrayToMap } from "@excalidraw/common";
+
+import { newElementWith } from "@excalidraw/element/mutateElement";
+
+import { isFrameLikeElement } from "@excalidraw/element/typeChecks";
+
+import type { ExcalidrawElement } from "@excalidraw/element/types";
+
 import { LockedIcon, UnlockedIcon } from "../components/icons";
-import { newElementWith } from "../element/mutateElement";
-import { isFrameLikeElement } from "../element/typeChecks";
-import type { ExcalidrawElement } from "../element/types";
-import { KEYS } from "../keys";
+
 import { getSelectedElements } from "../scene";
 import { CaptureUpdateAction } from "../store";
-import { arrayToMap } from "../utils";
+
 import { register } from "./register";
 
 const shouldLock = (elements: readonly ExcalidrawElement[]) =>

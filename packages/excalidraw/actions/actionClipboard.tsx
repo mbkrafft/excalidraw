@@ -1,5 +1,8 @@
-import { CODES, KEYS } from "../keys";
-import { register } from "./register";
+import { isTextElement } from "@excalidraw/element/typeChecks";
+import { getTextFromElements } from "@excalidraw/element/textElement";
+
+import { CODES, KEYS, isFirefox } from "@excalidraw/common";
+
 import {
   copyTextToSystemClipboard,
   copyToClipboard,
@@ -8,13 +11,14 @@ import {
   probablySupportsClipboardWriteText,
   readSystemClipboard,
 } from "../clipboard";
-import { actionDeleteSelected } from "./actionDeleteSelected";
-import { exportCanvas, prepareElementsForExport } from "../data/index";
-import { getTextFromElements, isTextElement } from "../element";
-import { t } from "../i18n";
-import { isFirefox } from "../constants";
 import { DuplicateIcon, cutIcon, pngIcon, svgIcon } from "../components/icons";
+import { exportCanvas, prepareElementsForExport } from "../data/index";
+import { t } from "../i18n";
+
 import { CaptureUpdateAction } from "../store";
+
+import { actionDeleteSelected } from "./actionDeleteSelected";
+import { register } from "./register";
 
 export const actionCopy = register({
   name: "copy",

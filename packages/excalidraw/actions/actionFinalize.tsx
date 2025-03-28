@@ -1,22 +1,30 @@
-import { KEYS } from "../keys";
-import { isInvisiblySmallElement } from "../element";
-import { arrayToMap, updateActiveTool } from "../utils";
-import { ToolButton } from "../components/ToolButton";
-import { done } from "../components/icons";
-import { t } from "../i18n";
-import { register } from "./register";
-import { mutateElement } from "../element/mutateElement";
-import { LinearElementEditor } from "../element/linearElementEditor";
+import { pointFrom } from "@excalidraw/math";
+
 import {
   maybeBindLinearElement,
   bindOrUnbindLinearElement,
-} from "../element/binding";
-import { isBindingElement, isLinearElement } from "../element/typeChecks";
-import type { AppState } from "../types";
+} from "@excalidraw/element/binding";
+import { LinearElementEditor } from "@excalidraw/element/linearElementEditor";
+import { mutateElement } from "@excalidraw/element/mutateElement";
+import {
+  isBindingElement,
+  isLinearElement,
+} from "@excalidraw/element/typeChecks";
+
+import { KEYS, arrayToMap, updateActiveTool } from "@excalidraw/common";
+import { isPathALoop } from "@excalidraw/element/shapes";
+
+import { isInvisiblySmallElement } from "@excalidraw/element/sizeHelpers";
+
+import { t } from "../i18n";
 import { resetCursor } from "../cursor";
+import { done } from "../components/icons";
+import { ToolButton } from "../components/ToolButton";
 import { CaptureUpdateAction } from "../store";
-import { pointFrom } from "@excalidraw/math";
-import { isPathALoop } from "../shapes";
+
+import { register } from "./register";
+
+import type { AppState } from "../types";
 
 export const actionFinalize = register({
   name: "finalize",

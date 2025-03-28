@@ -3,38 +3,50 @@ import {
   ROUNDNESS,
   TEXT_ALIGN,
   VERTICAL_ALIGN,
-} from "../constants";
-import { isTextElement, newElement } from "../element";
-import { mutateElement } from "../element/mutateElement";
+  arrayToMap,
+  getFontString,
+} from "@excalidraw/common";
+import {
+  getOriginalContainerHeightFromCache,
+  resetOriginalContainerCache,
+  updateOriginalContainerCache,
+} from "@excalidraw/element/containerCache";
+
 import {
   computeBoundTextPosition,
   computeContainerDimensionForBoundText,
   getBoundTextElement,
   redrawTextBoundingBox,
-} from "../element/textElement";
-import {
-  getOriginalContainerHeightFromCache,
-  resetOriginalContainerCache,
-  updateOriginalContainerCache,
-} from "../element/containerCache";
+} from "@excalidraw/element/textElement";
+
 import {
   hasBoundTextElement,
   isTextBindableContainer,
+  isTextElement,
   isUsingAdaptiveRadius,
-} from "../element/typeChecks";
+} from "@excalidraw/element/typeChecks";
+
+import { mutateElement } from "@excalidraw/element/mutateElement";
+import { measureText } from "@excalidraw/element/textMeasurements";
+
+import { syncMovedIndices } from "@excalidraw/element/fractionalIndex";
+
+import { newElement } from "@excalidraw/element/newElement";
+
 import type {
   ExcalidrawElement,
   ExcalidrawLinearElement,
   ExcalidrawTextContainer,
   ExcalidrawTextElement,
-} from "../element/types";
-import type { AppState } from "../types";
-import type { Mutable } from "../utility-types";
-import { arrayToMap, getFontString } from "../utils";
-import { register } from "./register";
-import { syncMovedIndices } from "../fractionalIndex";
+} from "@excalidraw/element/types";
+
+import type { Mutable } from "@excalidraw/common/utility-types";
+
 import { CaptureUpdateAction } from "../store";
-import { measureText } from "../element/textMeasurements";
+
+import { register } from "./register";
+
+import type { AppState } from "../types";
 
 export const actionUnbindText = register({
   name: "unbindText",

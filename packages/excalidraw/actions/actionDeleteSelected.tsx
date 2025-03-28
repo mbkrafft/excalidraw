@@ -1,25 +1,36 @@
-import { getSelectedElements, isSomeElementSelected } from "../scene";
-import { KEYS } from "../keys";
-import { ToolButton } from "../components/ToolButton";
-import { t } from "../i18n";
-import { register } from "./register";
-import { getNonDeletedElements } from "../element";
-import type { ExcalidrawElement } from "../element/types";
-import type { AppClassProperties, AppState } from "../types";
-import { mutateElement, newElementWith } from "../element/mutateElement";
-import { getElementsInGroup, selectGroupsForSelectedElements } from "../groups";
-import { LinearElementEditor } from "../element/linearElementEditor";
-import { fixBindingsAfterDeletion } from "../element/binding";
+import { KEYS, updateActiveTool } from "@excalidraw/common";
+
+import { getNonDeletedElements } from "@excalidraw/element";
+import { fixBindingsAfterDeletion } from "@excalidraw/element/binding";
+import { LinearElementEditor } from "@excalidraw/element/linearElementEditor";
+import {
+  mutateElement,
+  newElementWith,
+} from "@excalidraw/element/mutateElement";
+import { getContainerElement } from "@excalidraw/element/textElement";
 import {
   isBoundToContainer,
   isElbowArrow,
   isFrameLikeElement,
-} from "../element/typeChecks";
-import { updateActiveTool } from "../utils";
-import { TrashIcon } from "../components/icons";
+} from "@excalidraw/element/typeChecks";
+import { getFrameChildren } from "@excalidraw/element/frame";
+
+import {
+  getElementsInGroup,
+  selectGroupsForSelectedElements,
+} from "@excalidraw/element/groups";
+
+import type { ExcalidrawElement } from "@excalidraw/element/types";
+
+import { t } from "../i18n";
+import { getSelectedElements, isSomeElementSelected } from "../scene";
 import { CaptureUpdateAction } from "../store";
-import { getContainerElement } from "../element/textElement";
-import { getFrameChildren } from "../frame";
+import { TrashIcon } from "../components/icons";
+import { ToolButton } from "../components/ToolButton";
+
+import { register } from "./register";
+
+import type { AppClassProperties, AppState } from "../types";
 
 const deleteSelectedElements = (
   elements: readonly ExcalidrawElement[],
@@ -286,6 +297,7 @@ export const actionDeleteSelected = register({
         activeTool: updateActiveTool(appState, { type: "selection" }),
         multiElement: null,
         activeEmbeddable: null,
+        selectedLinearElement: null,
       },
       captureUpdate: isSomeElementSelected(
         getNonDeletedElements(elements),

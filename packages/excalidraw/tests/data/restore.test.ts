@@ -1,19 +1,24 @@
-import * as restore from "../../data/restore";
+import { pointFrom } from "@excalidraw/math";
+import { vi } from "vitest";
+
+import { DEFAULT_SIDEBAR, FONT_FAMILY, ROUNDNESS } from "@excalidraw/common";
+
+import { newElementWith } from "@excalidraw/element/mutateElement";
+import * as sizeHelpers from "@excalidraw/element/sizeHelpers";
+
 import type {
   ExcalidrawElement,
   ExcalidrawFreeDrawElement,
   ExcalidrawLinearElement,
   ExcalidrawTextElement,
-} from "../../element/types";
-import * as sizeHelpers from "../../element/sizeHelpers";
+} from "@excalidraw/element/types";
+import type { NormalizedZoomValue } from "@excalidraw/excalidraw/types";
+
 import { API } from "../helpers/api";
+import * as restore from "../../data/restore";
 import { getDefaultAppState } from "../../appState";
+
 import type { ImportedDataState } from "../../data/types";
-import type { NormalizedZoomValue } from "../../types";
-import { DEFAULT_SIDEBAR, FONT_FAMILY, ROUNDNESS } from "../../constants";
-import { newElementWith } from "../../element/mutateElement";
-import { vi } from "vitest";
-import { pointFrom } from "@excalidraw/math";
 
 describe("restoreElements", () => {
   const mockSizeHelper = vi.spyOn(sizeHelpers, "isInvisiblySmallElement");

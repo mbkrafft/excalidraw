@@ -1,9 +1,10 @@
-import { register } from "./register";
-import { deepCopyElement } from "../element/newElement";
-import { randomId } from "../random";
+import { LIBRARY_DISABLED_TYPES, randomId } from "@excalidraw/common";
+import { deepCopyElement } from "@excalidraw/element/duplicate";
+
 import { t } from "../i18n";
-import { LIBRARY_DISABLED_TYPES } from "../constants";
 import { CaptureUpdateAction } from "../store";
+
+import { register } from "./register";
 
 export const actionAddToLibrary = register({
   name: "addToLibrary",

@@ -1,8 +1,11 @@
-import { CODES, KEYS } from "../keys";
-import { register } from "./register";
-import type { AppState } from "../types";
+import { CODES, KEYS } from "@excalidraw/common";
+
 import { gridIcon } from "../components/icons";
 import { CaptureUpdateAction } from "../store";
+
+import { register } from "./register";
+
+import type { AppState } from "../types";
 
 export const actionToggleGridMode = register({
   name: "gridMode",

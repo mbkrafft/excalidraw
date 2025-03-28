@@ -1,6 +1,8 @@
+import { CODES, KEYS } from "@excalidraw/common";
+
 import { coffeeIcon } from "../components/icons";
-import { CODES, KEYS } from "../keys";
 import { CaptureUpdateAction } from "../store";
+
 import { register } from "./register";
 
 export const actionToggleZenMode = register({
