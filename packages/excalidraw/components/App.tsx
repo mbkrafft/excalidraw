@@ -100,6 +100,7 @@ import {
   isShallowEqual,
   arrayToMap,
   type EXPORT_IMAGE_TYPES,
+  randomInteger,
 } from "@excalidraw/common";
 
 import {
@@ -462,6 +463,8 @@ import { isOverScrollBars } from "../scene/scrollbars";
 
 import { isMaybeMermaidDefinition } from "../mermaid";
 
+import { LassoTrail } from "../lasso";
+
 import { activeConfirmDialogAtom } from "./ActiveConfirmDialog";
 import BraveMeasureTextError from "./BraveMeasureTextError";
 import { ContextMenu, CONTEXT_MENU_SEPARATOR } from "./ContextMenu";
@@ -693,6 +696,7 @@ class App extends React.Component<AppProps, AppState> {
         ? "rgba(0, 0, 0, 0.2)"
         : "rgba(255, 255, 255, 0.2)",
   });
+  lassoTrail = new LassoTrail(this.animationFrameHandler, this);
 
   onChangeEmitter = new Emitter<
     [
@@ -1671,7 +1675,11 @@ class App extends React.Component<AppProps, AppState> {
                         <div className="excalidraw-contextMenuContainer" />
                         <div className="excalidraw-eye-dropper-container" />
                         <SVGLayer
-                          trails={[this.laserTrails, this.eraserTrail]}
+                          trails={[
+                            this.laserTrails,
+                            this.eraserTrail,
+                            this.lassoTrail,
+                          ]}
                         />
                         {selectedElements.length === 1 &&
                           this.state.openDialog?.name !==
@@ -4631,7 +4639,10 @@ class App extends React.Component<AppProps, AppState> {
         this.state.openDialog?.name === "elementLinkSelector"
       ) {
         setCursor(this.interactiveCanvas, CURSOR_TYPE.GRAB);
-      } else if (this.state.activeTool.type === "selection") {
+      } else if (
+        this.state.activeTool.type === "selection" ||
+        this.state.activeTool.type === "lasso"
+      ) {
         resetCursor(this.interactiveCanvas);
       } else {
         setCursorForShape(this.interactiveCanvas, this.state);
@@ -4739,7 +4750,8 @@ class App extends React.Component<AppProps, AppState> {
             }
         )
       | { type: "custom"; customType: string }
-    ) & { locked?: boolean },
+    ) & { locked?: boolean; fromSelection?: boolean },
+    keepSelection = false,
   ) => {
     if (!this.isToolSupported(tool.type)) {
       console.warn(
@@ -4781,7 +4793,21 @@ class App extends React.Component<AppProps, AppState> {
         this.store.shouldCaptureIncrement();
       }
 
-      if (nextActiveTool.type !== "selection") {
+      if (nextActiveTool.type === "lasso") {
+        return {
+          ...prevState,
+          activeTool: nextActiveTool,
+          ...(keepSelection
+            ? {}
+            : {
+                selectedElementIds: makeNextSelectedElementIds({}, prevState),
+                selectedGroupIds: makeNextSelectedElementIds({}, prevState),
+                editingGroupId: null,
+                multiElement: null,
+              }),
+          ...commonResets,
+        };
+      } else if (nextActiveTool.type !== "selection") {
         return {
           ...prevState,
           activeTool: nextActiveTool,
@@ -6604,6 +6630,7 @@ class App extends React.Component<AppProps, AppState> {
       !this.state.penMode ||
       event.pointerType !== "touch" ||
       this.state.activeTool.type === "selection" ||
+      this.state.activeTool.type === "lasso" ||
       this.state.activeTool.type === "text" ||
       this.state.activeTool.type === "image";
 
@@ -6611,7 +6638,13 @@ class App extends React.Component<AppProps, AppState> {
       return;
     }
 
-    if (this.state.activeTool.type === "text") {
+    if (this.state.activeTool.type === "lasso") {
+      this.lassoTrail.startPath(
+        pointerDownState.origin.x,
+        pointerDownState.origin.y,
+        event.shiftKey,
+      );
+    } else if (this.state.activeTool.type === "text") {
       this.handleTextOnPointerDown(event, pointerDownState);
     } else if (
       this.state.activeTool.type === "arrow" ||
@@ -7068,7 +7101,10 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   private clearSelectionIfNotUsingSelection = (): void => {
-    if (this.state.activeTool.type !== "selection") {
+    if (
+      this.state.activeTool.type !== "selection" &&
+      this.state.activeTool.type !== "lasso"
+    ) {
       this.setState({
         selectedElementIds: makeNextSelectedElementIds({}, this.state),
         selectedGroupIds: {},
@@ -8268,7 +8304,8 @@ class App extends React.Component<AppProps, AppState> {
       if (
         (hasHitASelectedElement ||
           pointerDownState.hit.hasHitCommonBoundingBoxOfSelectedElements) &&
-        !isSelectingPointsInLineEditor
+        !isSelectingPointsInLineEditor &&
+        this.state.activeTool.type !== "lasso"
       ) {
         const selectedElements = this.scene.getSelectedElements(this.state);
 
@@ -8486,10 +8523,18 @@ class App extends React.Component<AppProps, AppState> {
             });
             if (
               hitElement &&
+              // hit element may not end up being selected
+              // if we're alt-dragging a common bounding box
+              // over the hit element
+              pointerDownState.hit.wasAddedToSelection &&
               !selectedElements.find((el) => el.id === hitElement.id)
             ) {
               selectedElements.push(hitElement);
             }
+
+            const idsOfElementsToDuplicate = new Map(
+              selectedElements.map((el) => [el.id, el]),
+            );
 
             const { newElements: clonedElements, elementsWithClones } =
               duplicateElements({
@@ -8497,9 +8542,7 @@ class App extends React.Component<AppProps, AppState> {
                 elements,
                 appState: this.state,
                 randomizeSeed: true,
-                idsOfElementsToDuplicate: new Map(
-                  selectedElements.map((el) => [el.id, el]),
-                ),
+                idsOfElementsToDuplicate,
                 overrides: (el) => {
                   const origEl = pointerDownState.originalElements.get(el.id);
 
@@ -8507,6 +8550,7 @@ class App extends React.Component<AppProps, AppState> {
                     return {
                       x: origEl.x,
                       y: origEl.y,
+                      seed: origEl.seed,
                     };
                   }
 
@@ -8526,7 +8570,14 @@ class App extends React.Component<AppProps, AppState> {
             const nextSceneElements = syncMovedIndices(
               mappedNewSceneElements || elementsWithClones,
               arrayToMap(clonedElements),
-            );
+            ).map((el) => {
+              if (idsOfElementsToDuplicate.has(el.id)) {
+                return newElementWith(el, {
+                  seed: randomInteger(),
+                });
+              }
+              return el;
+            });
 
             this.scene.replaceAllElements(nextSceneElements);
             this.maybeCacheVisibleGaps(event, selectedElements, true);
@@ -8540,7 +8591,37 @@ class App extends React.Component<AppProps, AppState> {
       if (this.state.selectionElement) {
         pointerDownState.lastCoords.x = pointerCoords.x;
         pointerDownState.lastCoords.y = pointerCoords.y;
-        this.maybeDragNewGenericElement(pointerDownState, event);
+        if (event.altKey) {
+          this.setActiveTool(
+            { type: "lasso", fromSelection: true },
+            event.shiftKey,
+          );
+          this.lassoTrail.startPath(
+            pointerDownState.origin.x,
+            pointerDownState.origin.y,
+            event.shiftKey,
+          );
+          this.setAppState({
+            selectionElement: null,
+          });
+        } else {
+          this.maybeDragNewGenericElement(pointerDownState, event);
+        }
+      } else if (this.state.activeTool.type === "lasso") {
+        if (!event.altKey && this.state.activeTool.fromSelection) {
+          this.setActiveTool({ type: "selection" });
+          this.createGenericElementOnPointerDown("selection", pointerDownState);
+          pointerDownState.lastCoords.x = pointerCoords.x;
+          pointerDownState.lastCoords.y = pointerCoords.y;
+          this.maybeDragNewGenericElement(pointerDownState, event);
+          this.lassoTrail.endPath();
+        } else {
+          this.lassoTrail.addPointToPath(
+            pointerCoords.x,
+            pointerCoords.y,
+            event.shiftKey,
+          );
+        }
       } else {
         // It is very important to read this.state within each move event,
         // otherwise we would read a stale one!
@@ -8795,6 +8876,8 @@ class App extends React.Component<AppProps, AppState> {
         originSnapOffset: null,
       }));
 
+      // just in case, tool changes mid drag, always clean up
+      this.lassoTrail.endPath();
       this.lastPointerMoveCoords = null;
 
       SnapCache.setReferenceSnapPoints(null);
@@ -9539,6 +9622,8 @@ class App extends React.Component<AppProps, AppState> {
       }
 
       if (
+        // do not clear selection if lasso is active
+        this.state.activeTool.type !== "lasso" &&
         // not elbow midpoint dragged
         !(hitElement && isElbowArrow(hitElement)) &&
         // not dragged
@@ -9637,7 +9722,13 @@ class App extends React.Component<AppProps, AppState> {
         return;
       }
 
-      if (!activeTool.locked && activeTool.type !== "freedraw") {
+      if (
+        !activeTool.locked &&
+        activeTool.type !== "freedraw" &&
+        (activeTool.type !== "lasso" ||
+          // if lasso is turned on but from selection => reset to selection
+          (activeTool.type === "lasso" && activeTool.fromSelection))
+      ) {
         resetCursor(this.interactiveCanvas);
         this.setState({
           newElement: null,
@@ -10492,7 +10583,7 @@ class App extends React.Component<AppProps, AppState> {
         width: distance(pointerDownState.origin.x, pointerCoords.x),
         height: distance(pointerDownState.origin.y, pointerCoords.y),
         shouldMaintainAspectRatio: shouldMaintainAspectRatio(event),
-        shouldResizeFromCenter: shouldResizeFromCenter(event),
+        shouldResizeFromCenter: false,
         zoom: this.state.zoom.value,
         informMutation,
       });
